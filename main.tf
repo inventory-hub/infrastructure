@@ -28,7 +28,7 @@ resource "azurerm_storage_account" "storage_account" {
 }
 
 resource "azurerm_storage_container" "storage_container" {
-  name                  = "inventory-hub-images-container"
+  name                  = "uploads"
   storage_account_name  = azurerm_storage_account.storage_account.name
   container_access_type = "container"
 }
@@ -45,6 +45,7 @@ resource "azurerm_cdn_endpoint" "cdn_blob_endpoint" {
   profile_name        = azurerm_cdn_profile.cdn_profile.name
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
+  origin_host_header  = azurerm_storage_account.storage_account.primary_blob_host
 
   origin {
     name      = azurerm_storage_account.storage_account.name
@@ -56,4 +57,9 @@ resource "azurerm_cdn_endpoint_custom_domain" "cdn_custom_domain" {
   name            = "inventory-hub-cdn-custom-domain"
   cdn_endpoint_id = azurerm_cdn_endpoint.cdn_blob_endpoint.id
   host_name       = "cdn.${var.domain_name}"
+  cdn_managed_https {
+    certificate_type = "Dedicated"
+    protocol_type    = "ServerNameIndication"
+    tls_version      = "TLS12"
+  }
 }
