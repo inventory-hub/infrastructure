@@ -75,3 +75,45 @@ resource "azurerm_storage_queue" "email_queues" {
   for_each             = local.default_queues
   name                 = each.value
 }
+
+resource "azurerm_application_insights" "application_insights" {
+  name                = "inventory-hub-application-insights"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  application_type    = "web"
+}
+
+resource "azurerm_service_plan" "serverless_service_plan" {
+  name                = "inventory-hub-serverless-service-plan"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  // For function app consumption plan
+  os_type  = "Linux"
+  sku_name = "Y1"
+}
+
+resource "azurerm_linux_function_app" "inventory-hub-email-service" {
+  name                = "inventory-hub-email-service"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  service_plan_id     = azurerm_service_plan.serverless_service_plan.id
+
+
+  storage_account_name       = azurerm_storage_account.storage_account.name
+  storage_account_access_key = azurerm_storage_account.storage_account.primary_access_key
+
+  app_settings = {
+    "SENDER_ADDRESS"                           = "no-reply@${var.domain_name}"
+    "COMMUNICATION_SERVICES_CONNECTION_STRING" = azurerm_communication_service.communication-service.primary_connection_string
+  }
+
+  site_config {
+    application_insights_key               = azurerm_application_insights.application_insights.instrumentation_key
+    application_insights_connection_string = azurerm_application_insights.application_insights.connection_string
+    application_stack {
+      dotnet_version              = "7.0"
+      use_dotnet_isolated_runtime = true
+    }
+  }
+}
