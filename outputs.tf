@@ -1,7 +1,7 @@
 
 
 output "cdn_cname" {
-  value = "Origin: ${azurerm_storage_account.storage_account.primary_blob_host}\nHost: cdn.${var.domain_name}}"
+  value = "Origin: ${azurerm_storage_account.storage_account.primary_blob_host}\nHost  : cdn.${var.domain_name}"
 }
 
 output "communication_service_connection_string" {

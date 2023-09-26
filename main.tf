@@ -33,6 +33,12 @@ resource "azurerm_storage_container" "storage_container" {
   container_access_type = "container"
 }
 
+resource "azurerm_storage_container" "email_assets_storage_container" {
+  name                  = "email-assets"
+  storage_account_name  = azurerm_storage_account.storage_account.name
+  container_access_type = "container"
+}
+
 resource "azurerm_cdn_profile" "cdn_profile" {
   name                = "inventory-hub-cdn-profile"
   resource_group_name = azurerm_resource_group.rg.name
@@ -62,4 +68,10 @@ resource "azurerm_cdn_endpoint_custom_domain" "cdn_custom_domain" {
     protocol_type    = "ServerNameIndication"
     tls_version      = "TLS12"
   }
+}
+
+resource "azurerm_storage_queue" "email_queues" {
+  storage_account_name = azurerm_storage_account.storage_account.name
+  for_each             = local.default_queues
+  name                 = each.value
 }

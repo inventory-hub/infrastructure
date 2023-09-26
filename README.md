@@ -8,6 +8,10 @@ Some features are not supported by by `hashicorp/azurerm`` :(
 
 Install the azure cli and login to your account. `az login`
 
+### CDN
+
+To map the CDN to the custom domain, follow the steps from [here](https://docs.microsoft.com/en-us/azure/cdn/cdn-map-content-to-custom-domain?tabs=azure-portal).
+
 ### Azure Communication Service
 
 This service is so unused that Azure does not even have it in the default cli nor the extension!
